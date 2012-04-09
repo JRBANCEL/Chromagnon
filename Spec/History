@@ -1,0 +1,13 @@
+____________
+History File
+
+SQLite3 file
+Columns
+    id                  id in DB
+    url                 complete URL
+    title               title of the page
+    visit_count         counter of visits
+    typed_count         number of time typed in the address bar
+    last_visit_time     last time (since 1 January 1601 00:00:00 UT)
+    hidden              ???
+    favicon_id          ???
