@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+CSV Output Module
+"""
+
 import csv
 import sys
 

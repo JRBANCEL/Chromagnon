@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+Classical Output Module
+"""
+
 import os
 
 def classicalOutput(queryResult, separator="\t"):
