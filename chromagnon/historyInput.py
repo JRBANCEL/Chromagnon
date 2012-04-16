@@ -10,7 +10,7 @@ import re
 import sqlite3
 import sys
 
-#XXX
+#XXX hardcoded filename
 def parse(filename="../data/History", formatString="iqc"):
     """
     Format :
