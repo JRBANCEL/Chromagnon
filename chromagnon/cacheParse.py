@@ -10,6 +10,9 @@ for design details
 import os
 import struct
 
+from cacheAddress import CacheAddress
+from cacheEntry import CacheEntry
+
 class CacheBlock():
     """
     Object representing a block of the cache. It can be the index file or any
@@ -56,11 +59,30 @@ class CacheBlock():
             header.seek(4*3, 1)
             self.tableSize = struct.unpack('I', header.read(4))[0]
         else:
+            header.close()
             raise Exception("Invalid Chrome Cache File")
+        header.close()
 
 #XXX Filename
-def parse(filename="../data/Cache/index"):
+def parse(path="../data/Cache/"):
     """
     Reads the whole cache and store the collected data in a table
     """
-    pass
+
+    cacheBlock = CacheBlock(path + "index")
+
+    # Checking type
+    if cacheBlock.type != CacheBlock.INDEX:
+        raise Exception("Invalid Index File")
+
+    index = open(path + "index", 'rB')
+
+    # Skipping Header
+    index.seek(92*4)
+
+    for key in range(os.path.getsize(path + "index")/4 - 92):
+        #TODO
+        raw = struct.unpack('I', index.read(4))[0]
+        if raw != 0:
+            print "------------------------------------------------------------"
+            print CacheEntry(CacheAddress(raw, path=path))
