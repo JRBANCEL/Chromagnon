@@ -8,6 +8,7 @@ Parse the HTTP header if asked.
 
 import os
 import re
+import shutil
 import struct
 
 import cacheAddress
@@ -32,7 +33,8 @@ class CacheData():
         self.address = address
         self.type = CacheData.UNKNOWN
 
-        if isHTTPHeader:
+        if isHTTPHeader and\
+           self.address.blockType != cacheAddress.CacheAddress.SEPARATE_FILE:
             # Getting raw data
             string = ""
             block = open(self.address.path + self.address.fileSelector, 'rB')
@@ -55,6 +57,7 @@ class CacheData():
             else:
                 string = string[:end.end()-2]
 
+            # Creating the dictionary of headers
             self.headers = {}
             for line in string.split('\0'):
                 stripped = line.split(':')
@@ -64,7 +67,8 @@ class CacheData():
     def save(self, filename=None):
         """Save the data to the specified filename"""
         if self.address.blockType == cacheAddress.CacheAddress.SEPARATE_FILE:
-           pass
+            shutil.copy(self.address.path + self.address.fileSelector,
+                        filename)
         else:
             output = open(filename, 'wB')
             block = open(self.address.path + self.address.fileSelector, 'rB')
@@ -72,6 +76,16 @@ class CacheData():
             output.write(block.read(self.size))
             block.close()
             output.close()
+
+    def data(self):
+        """Returns a string representing the data"""
+        block = open(self.address.path + self.address.fileSelector, 'rB')
+        block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+        data = ""
+        for dummy in range(self.size):
+            data += struct.unpack('c', block.read(1))[0]
+        block.close()
+        return data
 
     def __str__(self):
         """
