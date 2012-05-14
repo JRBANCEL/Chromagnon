@@ -22,6 +22,7 @@ class CacheEntry():
         """
         Parse a Chrome Cache Entry at the given address
         """
+        self.httpHeader = None
         block = open(address.path + address.fileSelector, 'rB')
 
         # Going to the right entry
@@ -50,15 +51,16 @@ class CacheEntry():
             addr = struct.unpack('I', block.read(4))[0]
             try:
                 addr = cacheAddress.CacheAddress(addr, address.path)
-                # XXX
-                if dummy == 0:
-                    self.data.append(cacheData.CacheData(addr, dataSize[dummy],
-                                                         True))
-                else:
-                    self.data.append(cacheData.CacheData(addr, dataSize[dummy]))
-
+                self.data.append(cacheData.CacheData(addr, dataSize[dummy],
+                                                     True))
             except cacheAddress.CacheAddressError:
                 pass
+
+        # Find the HTTP header if there is one
+        for data in self.data:
+            if data.type == cacheData.CacheData.HTTP_HEADER:
+                self.httpHeader = data
+                break
 
         self.flags = struct.unpack('I', block.read(4))[0]
 
@@ -78,6 +80,16 @@ class CacheEntry():
             self.key = cacheData.CacheData(addr, self.keyLength, True)
 
         block.close()
+
+    def keyToStr(self):
+        """
+        Since the key can be a string or a CacheData object, this function is an
+        utility to display the content of the key whatever type is it.
+        """
+        if self.keyAddress == 0:
+            return self.key
+        else:
+            return self.key.data()
 
     def __str__(self):
         string = "Hash : 0x%08x"%self.hash + '\n'\
