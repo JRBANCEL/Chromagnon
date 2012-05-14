@@ -7,6 +7,7 @@ import sys
 from classicalOutput import classicalOutput
 from columnOutput import columnOutput
 from csvOutput import csvOutput
+import cacheParse
 import historyInput
 
 
@@ -15,6 +16,7 @@ import historyInput
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+cacheParse.export()
 
-classicalOutput(historyInput.parse(), ';')
+#classicalOutput(historyInput.parse(), ';')
 #csvOutput(queryResult)
