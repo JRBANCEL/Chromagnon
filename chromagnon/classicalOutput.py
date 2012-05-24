@@ -6,6 +6,7 @@ Classical Output Module
 """
 
 import os
+import sys
 
 def classicalOutput(queryResult, separator="\t"):
     """
@@ -14,5 +15,6 @@ def classicalOutput(queryResult, separator="\t"):
 
     for line in queryResult:
         for element in line:
-            os.write(1, unicode(element) + separator)
-        os.write(1, '\n')
+            sys.stdout.write(element)
+            sys.stdout.write(separator)
+        sys.stdout.write('\n')
