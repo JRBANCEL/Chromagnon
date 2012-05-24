@@ -11,8 +11,16 @@ import re
 import sqlite3
 import sys
 
+import cacheParse
+
 #XXX hardcoded filename
-def parse(filename="../data/History"):
+def parse(filename, start, end, checkCache=False, cachePath="/home/jrb/.cache/chromium/Default/Cache/"):
+    """
+    filename: path to the history file
+    start: beginning of the time window
+    end: end of the time window
+    checkCache: check if each page in the history is in the cache
+    """
 
     # Connecting to the DB
     try:
@@ -21,6 +29,8 @@ def parse(filename="../data/History"):
         print "==> Error while opening the history file !"
         print "==> Details :", error.message
         sys.exit("==> Exiting...")
+
+    reference = datetime.datetime(1601, 1, 1)
 
     # Retrieving all useful data
     result = history.execute("SELECT visits.visit_time, \
@@ -33,10 +43,20 @@ def parse(filename="../data/History"):
                                urls.last_visit_time \
                                FROM urls,visits \
                                WHERE urls.id=visits.url\
-                               ORDER BY visits.visit_time;")
+                               AND visits.visit_time>%d\
+                               AND visits.visit_time<%d\
+                               ORDER BY visits.visit_time;"%\
+                               (int((start-reference).total_seconds()*1000000),\
+                               int((end-reference).total_seconds()*1000000)))\
+
+    # Parsing cache
+    cache = None
+    if checkCache:
+        cache = cacheParse.parse(cachePath)
+
     output = []
     for line in result:
-        output.append(HistoryEntry(line).toStr())
+        output.append(HistoryEntry(line, cache))
     return output
 
 class Transition():
@@ -65,10 +85,18 @@ class Transition():
     def __str__(self):
         return Transition.CORE_STRING[self.core]
 
-class HistoryEntry():
+class HistoryEntry(object):
     """Object to store database entries"""
+    COLUMN_STR = {'vt': "visitTime",
+                  'fv': "fromVisit",
+                  'tr': "transition",
+                  'u':  "url",
+                  'tl': "title",
+                  'vc': "visitCount",
+                  'tc': "typedCount",
+                  'lv': "lastVisitTime"}
 
-    def __init__(self, item):
+    def __init__(self, item, cache):
         """Parse raw input"""
         self.visitTime = datetime.datetime(1601, 1, 1) + \
                          datetime.timedelta(microseconds=\
@@ -83,6 +111,15 @@ class HistoryEntry():
                              datetime.timedelta(microseconds=\
                              item[7])
 
+        # Searching in the cache if there is a copy of the page
+        # TODO use a hash table to search instead of heavy exhaustive search
+        if cache != None:
+            for item in cache:
+                if item.keyToStr() == self.url:
+                    self.inCache = item
+                    break
+            self.inCache = None
+
     def toStr(self):
         return [unicode(self.visitTime),\
                 unicode(self.fromVisit),\
@@ -92,3 +129,7 @@ class HistoryEntry():
                 unicode(self.visitCount),\
                 unicode(self.typedCount),\
                 unicode(self.lastVisitTime)]
+
+    def columnToStr(self, column):
+        """Returns column content specified by argument"""
+        return unicode(self.__getattribute__(HistoryEntry.COLUMN_STR[column]))
