@@ -53,7 +53,7 @@ class CacheBlock():
             self.entryCount = struct.unpack('I', header.read(4))[0]
             self.byteCount = struct.unpack('I', header.read(4))[0]
             self.lastFileCreated = "f_%06x"%struct.unpack('I', header.read(4))[0]
-            header.seek(4*3, 1)
+            header.seek(4*2, 1)
             self.tableSize = struct.unpack('I', header.read(4))[0]
         else:
             header.close()
