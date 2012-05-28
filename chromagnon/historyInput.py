@@ -11,7 +11,7 @@ import sqlite3
 import sys
 
 #XXX hardcoded filename
-def parse(filename="../data/History", formatString="iqc"):
+def parse(filename="../data/History", formatString="itu"):
     """
     Format :
         i : id
