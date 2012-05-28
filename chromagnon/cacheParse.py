@@ -41,12 +41,17 @@ def parse(path, urls=None):
     cache = []
     # If no url is specified, parse the whole cache
     if urls == None:
-        print "Whole cache"
         for key in range(cacheBlock.tableSize):
             raw = struct.unpack('I', index.read(4))[0]
             if raw != 0:
-                e = CacheEntry(CacheAddress(raw, path=path))
-                cache.append(e)
+                entry = CacheEntry(CacheAddress(raw, path=path))
+                # Checking if there is a next item in the bucket because
+                # such entries are not stored in the Index File so they will
+                # be ignored during iterative lookup in the hash table
+                while entry.next != 0:
+                    cache.append(entry)
+                    entry = CacheEntry(CacheAddress(entry.next, path=path))
+                cache.append(entry)
     else:
         # Find the entry for each url
         for url in urls:
@@ -60,14 +65,12 @@ def parse(path, urls=None):
             if addr & 0x80000000 == 0:
                 print >> sys.stderr,\
                       "\033[32m%s\033[31m is not in the cache\033[0m"%url
-                print >> sys.stderr, '-'*80
 
             # Follow the chained list in the bucket
             else:
                 entry = CacheEntry(CacheAddress(addr, path=path))
                 while entry.hash != hash and entry.next != 0:
-                    entry = CacheEntry(CacheEntry(CacheAddress(entry.next,
-                                                  path=path)))
+                    entry = CacheEntry(CacheAddress(entry.next, path=path))
                 if entry.hash == hash:
                     cache.append(entry)
     return cache
