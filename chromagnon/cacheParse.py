@@ -10,6 +10,9 @@ for design details
 import gzip
 import os
 import struct
+import sys
+
+import SuperFastHash
 
 from cacheAddress import CacheAddress
 from cacheBlock import CacheBlock
@@ -17,10 +20,11 @@ from cacheData import CacheData
 from cacheEntry import CacheEntry
 
 
-#XXX Filename
-def parse(path="/home/jrb/.cache/chromium/Default/Cache/"):
+def parse(path, urls=None):
     """
     Reads the whole cache and store the collected data in a table
+    or find out if the given list of urls is in the cache. If yes it
+    return a list of the corresponding entries.
     """
 
     cacheBlock = CacheBlock(path + "index")
@@ -35,22 +39,40 @@ def parse(path="/home/jrb/.cache/chromium/Default/Cache/"):
     index.seek(92*4)
 
     cache = []
-    for key in range(os.path.getsize(path + "index")/4 - 92):
-        #TODO
-        raw = struct.unpack('I', index.read(4))[0]
-        if raw != 0:
-#            print "------------------------------------------------------------"
-#            print "0x%08x"%key
-            e = CacheEntry(CacheAddress(raw, path=path))
-            cache.append(e)
-#            print e
-#            for i in range(len(e.data)):
-#                if e.data[i].type == CacheData.UNKNOWN:
-#                    e.data[i].save("/tmp/out/" + hex(e.hash) + "_" + str(i))
+    # If no url is specified, parse the whole cache
+    if urls == None:
+        print "Whole cache"
+        for key in range(cacheBlock.tableSize):
+            raw = struct.unpack('I', index.read(4))[0]
+            if raw != 0:
+                e = CacheEntry(CacheAddress(raw, path=path))
+                cache.append(e)
+    else:
+        # Find the entry for each url
+        for url in urls:
+            # Compute the key and seeking to it
+            hash = SuperFastHash.superFastHash(url)
+            key = hash & (cacheBlock.tableSize - 1)
+            index.seek(92*4 + key*4)
+
+            addr = struct.unpack('I', index.read(4))[0]
+            # Checking if the address is initialized (i.e. used)
+            if addr & 0x80000000 == 0:
+                print >> sys.stderr,\
+                      "\033[32m%s\033[31m is not in the cache\033[0m"%url
+                print >> sys.stderr, '-'*80
+
+            # Follow the chained list in the bucket
+            else:
+                entry = CacheEntry(CacheAddress(addr, path=path))
+                while entry.hash != hash and entry.next != 0:
+                    entry = CacheEntry(CacheEntry(CacheAddress(entry.next,
+                                                  path=path)))
+                if entry.hash == hash:
+                    cache.append(entry)
     return cache
 
-#XXX Filename
-def export(inpath="/home/jrb/.cache/chromium/Default/Cache/", outpath="/tmp/chromagnonExport/"):
+def export(cache, outpath):
     """
     Export the cache in html
     """
@@ -58,9 +80,6 @@ def export(inpath="/home/jrb/.cache/chromium/Default/Cache/", outpath="/tmp/chro
     # Checking that the directory exists and is writable
     if not os.path.exists(outpath):
        os.makedirs(outpath)
-
-    # Parsing cache
-    cache = parse(inpath)
 
     index = open(outpath + "index.html", 'w')
     index.write("<UL>")
@@ -90,6 +109,8 @@ def export(inpath="/home/jrb/.cache/chromium/Default/Cache/", outpath="/tmp/chro
         page.write("<b>Key</b>: %s<br>"%entry.keyToStr())
 
         page.write("<hr>")
+        if len(entry.data) == 0:
+            page.write("No data associated with this entry :-(")
         for i in range(len(entry.data)):
             if entry.data[i].type == CacheData.UNKNOWN:
                 # Extracting data into a file
