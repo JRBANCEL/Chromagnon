@@ -73,6 +73,13 @@ class Transition():
                    "Reload",\
                    "Keyword",\
                    "Keywork Generated"]
+    QUALIFIER_STRING = [(0x01000000, "Forward or Back Button"),
+                        (0x02000000, "Address Bar"),
+                        (0x04000000, "Home Page"),
+                        (0x10000000, "Beginning of Chain"),
+                        (0x20000000, "End of Chain"),
+                        (0x40000000, "Client Redirection"),
+                        (0x80000000, "Server Redirection")]
 
     def __init__(self, transition):
         """
@@ -83,7 +90,11 @@ class Transition():
         self.qualifier = transition & 0xFFFFFF00
 
     def __str__(self):
-        return Transition.CORE_STRING[self.core]
+        string = Transition.CORE_STRING[self.core]
+        for mask, description in Transition.QUALIFIER_STRING:
+            if self.qualifier & mask != 0:
+                string += ", %s"%description
+        return string
 
 class HistoryEntry(object):
     """Object to store database entries"""
@@ -94,7 +105,8 @@ class HistoryEntry(object):
                   'tl': "title",
                   'vc': "visitCount",
                   'tc': "typedCount",
-                  'lv': "lastVisitTime"}
+                  'lv': "lastVisitTime",
+                  'cc': "inCache"}
 
     def __init__(self, item, cache):
         """Parse raw input"""
@@ -113,12 +125,12 @@ class HistoryEntry(object):
 
         # Searching in the cache if there is a copy of the page
         # TODO use a hash table to search instead of heavy exhaustive search
+        self.inCache = False
         if cache != None:
             for item in cache:
                 if item.keyToStr() == self.url:
-                    self.inCache = item
+                    self.inCache = True
                     break
-            self.inCache = None
 
     def toStr(self):
         return [unicode(self.visitTime),\
