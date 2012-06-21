@@ -17,6 +17,9 @@ class CacheEntry():
     """
     See /net/disk_cache/disk_format.h for details.
     """
+    STATE = ["Normal",
+             "Evicted (data were deleted)",
+             "Doomed (shit happened)"]
 
     def __init__(self, address):
         """
@@ -96,14 +99,14 @@ class CacheEntry():
         if self.next != 0:
             string += "Next: 0x%08x"%self.next + '\n'
         string += "Usage Counter: %d"%self.usageCounter + '\n'\
-                       "Reuse Counter: %d"%self.reuseCounter + '\n'\
-                       "Creation Time: %s"%self.creationTime + '\n'\
-                       "Key Length: %d"%self.keyLength + '\n'
+                  "Reuse Counter: %d"%self.reuseCounter + '\n'\
+                  "Creation Time: %s"%self.creationTime + '\n'
         if self.keyAddress != 0:
             string += "Key Address: 0x%08x"%self.keyAddress + '\n'
-        string += "Key: %s"%self.key + '\n'\
-                  "Flags: 0x%08x"%self.flags
-                 #TODO State
+        string += "Key: %s"%self.key + '\n'
+        if self.flags != 0:
+            string += "Flags: 0x%08x"%self.flags + '\n'
+        string += "State: %s"%CacheEntry.STATE[self.state]
         for data in self.data:
              string += "\nData (%d bytes) at 0x%08x : %s"%(data.size,
                                                            data.address.addr,
