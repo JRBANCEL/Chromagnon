@@ -7,7 +7,7 @@ JSON Output Module
 
 import json
 
-def jsonOutput(queryResult, separator):
+def jsonOutput(queryResult, separator=''):
     """
     Display the data separated in JSON
     """
