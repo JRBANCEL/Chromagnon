@@ -5,7 +5,6 @@
 Classical Output Module
 """
 
-import os
 import sys
 
 def classicalOutput(queryResult, separator="\t"):
