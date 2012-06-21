@@ -49,6 +49,9 @@ class CacheAddress():
         # If it is an address of a separate file
         if self.blockType == CacheAddress.SEPARATE_FILE:
             self.fileSelector = "f_%06x"%int(self.binary[6:], 2)
+        elif self.blockType == CacheAddress.RANKING_BLOCK:
+            self.fileSelector = "data_" + str(int(self.binary[10:18], 2))
+            pass
         else:
             self.entrySize = CacheAddress.typeArray[self.blockType][1]
             self.contiguousBlock = int(self.binary[8:10], 2)
@@ -57,7 +60,7 @@ class CacheAddress():
 
     def __str__(self):
         string = hex(self.addr) + " ("
-        if self.blockType != CacheAddress.SEPARATE_FILE:
+        if self.blockType >= CacheAddress.BLOCK_256:
             string += str(self.contiguousBlock) +\
                       " contiguous blocks in "
         string += CacheAddress.typeArray[self.blockType][0] +\
