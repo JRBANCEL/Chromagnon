@@ -12,6 +12,7 @@ import os
 import struct
 import sys
 
+import csvOutput
 import SuperFastHash
 
 from cacheAddress import CacheAddress
@@ -75,7 +76,7 @@ def parse(path, urls=None):
                     cache.append(entry)
     return cache
 
-def export(cache, outpath):
+def exportToHTML(cache, outpath):
     """
     Export the cache in html
     """
@@ -110,6 +111,7 @@ def export(cache, outpath):
         page.write("<b>Reuse Counter</b>: %d<br />"%entry.reuseCounter)
         page.write("<b>Creation Time</b>: %s<br />"%entry.creationTime)
         page.write("<b>Key</b>: %s<br>"%entry.keyToStr())
+        page.write("<b>State</b>: %s<br>"%CacheEntry.STATE[entry.state])
 
         page.write("<hr>")
         if len(entry.data) == 0:
@@ -152,3 +154,60 @@ def export(cache, outpath):
 
     index.write("</UL>")
     index.close()
+
+def exportTol2t(cache):
+    """
+    Export the cache in CSV log2timeline compliant format
+    """
+
+    output = []
+    output.append(["date",
+                   "time",
+                   "timezone",
+                   "MACB",
+                   "source",
+                   "sourcetype",
+                   "type",
+                   "user",
+                   "host",
+                   "short",
+                   "desc",
+                   "version",
+                   "filename",
+                   "inode",
+                   "notes",
+                   "format",
+                   "extra"])
+
+    for entry in cache:
+        date = entry.creationTime.date().strftime("%m/%d/%Y")
+        time = entry.creationTime.time()
+        # TODO get timezone
+        timezone = 0
+        short = entry.keyToStr()
+        descr = "Hash: 0x%08x"%entry.hash
+        descr += " Usage Counter: %d"%entry.usageCounter
+        if entry.httpHeader != None:
+            if entry.httpHeader.headers.has_key('content-type'):
+               descr += " MIME: %s"%entry.httpHeader.headers['content-type']
+
+        output.append([date,
+                       time,
+                       timezone,
+                       "MACB",
+                       "WEBCACHE",
+                       "Chrome Cache",
+                       "Cache Entry",
+                       "-",
+                       "-",
+                       short,
+                       descr,
+                       "2",
+                       "-",
+                       "-",
+                       "-",
+                       "-",
+                       "-",
+                       ])
+
+    csvOutput.csvOutput(output)
