@@ -14,12 +14,13 @@ import sys
 import cacheParse
 
 #XXX hardcoded filename
-def parse(filename, start, end, checkCache=False, cachePath="/home/jrb/.cache/chromium/Default/Cache/"):
+def parse(filename, start, end, checkCache, cachePath):
     """
     filename: path to the history file
     start: beginning of the time window
     end: end of the time window
     checkCache: check if each page in the history is in the cache
+    cachePath: path to cache directory
     """
 
     # Connecting to the DB
