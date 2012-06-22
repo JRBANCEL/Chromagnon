@@ -27,6 +27,8 @@ def parse(path, urls=None):
     or find out if the given list of urls is in the cache. If yes it
     return a list of the corresponding entries.
     """
+    # Verifying that the path end with / (What happen on windows?)
+    path = os.path.abspath(path) + '/'
 
     cacheBlock = CacheBlock(path + "index")
 
@@ -84,6 +86,7 @@ def exportToHTML(cache, outpath):
     # Checking that the directory exists and is writable
     if not os.path.exists(outpath):
        os.makedirs(outpath)
+    outpath = os.path.abspath(outpath) + '/'
 
     index = open(outpath + "index.html", 'w')
     index.write("<UL>")
@@ -126,13 +129,16 @@ def exportToHTML(cache, outpath):
                    entry.httpHeader.headers.has_key('content-encoding') and\
                    entry.httpHeader.headers['content-encoding'] == "gzip":
                     # XXX Highly inefficient !!!!!
-                    input = gzip.open(name, 'rb')
-                    output = open(name + "u", 'w')
-                    output.write(input.read())
-                    input.close()
-                    output.close()
-                    page.write('<a href="%su">%s</a>'%(name ,
-                               entry.keyToStr().split('/')[-1]))
+                    try:
+                        input = gzip.open(name, 'rb')
+                        output = open(name + "u", 'w')
+                        output.write(input.read())
+                        input.close()
+                        output.close()
+                        page.write('<a href="%su">%s</a>'%(name ,
+                                   entry.keyToStr().split('/')[-1]))
+                    except IOError:
+                        page.write("Something wrong happened while unzipping");
                 else:
                     page.write('<a href="%s">%s</a>'%(name ,
                                entry.keyToStr().split('/')[-1]))
