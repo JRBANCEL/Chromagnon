@@ -1,47 +1,70 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+Parse the Chrome Visited Links
+Reverse engineered from
+  chrome/common/visitedlink_common.*
+  chrome/browser/visitedlink/visitedlink_*
+"""
+
 import md5
 import struct
 import sys
 
-f = open("/home/jrb/.config/chromium/Default/Visited Links", 'rB')
-print "Magic: 0x%08x"%struct.unpack('I', f.read(4))[0]
-print "Version: %d"%struct.unpack('I', f.read(4))[0]
-length = struct.unpack('I', f.read(4))[0]
-print "Length: %d"%length
-print "Used Items: %d"%struct.unpack('I', f.read(4))[0]
+VISITED_LINKS_MAGIC = 0x6b6e4c56;
 
-salt = ""
-for dummy in range(8):
-    salt += struct.unpack('c', f.read(1))[0]
+def isVisited(path, urls):
+    """
+    Return the list of urls given in parameter with a boolean information
+    about its presence in the given visited links file
+    """
+    output = []
 
-url = sys.argv[1]
+    f = open(path, 'rB')
 
-fingerprint = md5.new()
-fingerprint.update(salt)
-fingerprint.update(url)
-digest = fingerprint.hexdigest()
+    # Checking file type
+    magic = struct.unpack('I', f.read(4))[0]
+    if magic != VISITED_LINKS_MAGIC:
+        raise Exception("Invalid file")
 
-# Inverting the result
-# Why Chrome MD5 computation gives a reverse digest ?
-fingerprint = 0
-for i in range(0, 16, 2):
-    fingerprint += int(digest[i:i+2], 16) << (i/2)*8
-key = fingerprint % length
+    # Reading header values
+    version = struct.unpack('I', f.read(4))[0]
+    length = struct.unpack('I', f.read(4))[0]
+    usedItems = struct.unpack('I', f.read(4))[0]
 
-# The hash table uses open addressing
-# See chrome/common/visitedlink_common.* for details
-f.seek(key*8 + 24, 0)
-while True:
-    finger = struct.unpack('L', f.read(8))[0]
-#print "0x%08x: 0x%016x"%((f.tell()-24)/8-1, finger)
-    if finger == 0:
-        print "Not Found"
-        break
-    if finger == fingerprint:
-        print "Found"
-        break
-    if f.tell() >= length*8 + 24:
-        f.seek(24)
-    if f.tell() == key*8 + 24:
-        print "Not Found"
-        break
-f.close()
+    # Reading salt
+    salt = ""
+    for dummy in range(8):
+        salt += struct.unpack('c', f.read(1))[0]
+
+    for url in urls:
+        fingerprint = md5.new()
+        fingerprint.update(salt)
+        fingerprint.update(url)
+        digest = fingerprint.hexdigest()
+
+        # Inverting the result
+        # Why Chrome MD5 computation gives a reverse digest ?
+        fingerprint = 0
+        for i in range(0, 16, 2):
+            fingerprint += int(digest[i:i+2], 16) << (i/2)*8
+        key = fingerprint % length
+
+        # The hash table uses open addressing
+        f.seek(key*8 + 24, 0)
+        while True:
+            finger = struct.unpack('L', f.read(8))[0]
+            if finger == 0:
+                output.append((url, False))
+                break
+            if finger == fingerprint:
+                output.append((url, True))
+                break
+            if f.tell() >= length*8 + 24:
+                f.seek(24)
+            if f.tell() == key*8 + 24:
+                output.append((url, False))
+                break
+    f.close()
+    return output
