@@ -13,8 +13,7 @@ import sys
 
 import cacheParse
 
-#XXX hardcoded filename
-def parse(filename, start, end, checkCache, cachePath):
+def parse(filename, start, end, checkCache, cachePath, urlLength):
     """
     filename: path to the history file
     start: beginning of the time window
@@ -57,7 +56,7 @@ def parse(filename, start, end, checkCache, cachePath):
 
     output = []
     for line in result:
-        output.append(HistoryEntry(line, cache))
+        output.append(HistoryEntry(line, cache, urlLength))
     return output
 
 class Transition():
@@ -109,14 +108,17 @@ class HistoryEntry(object):
                   'lv': "lastVisitTime",
                   'cc': "inCache"}
 
-    def __init__(self, item, cache):
+    def __init__(self, item, cache, urlLength):
         """Parse raw input"""
         self.visitTime = datetime.datetime(1601, 1, 1) + \
                          datetime.timedelta(microseconds=\
                          item[0])
         self.fromVisit = item[1]
         self.transition = Transition(item[2])
-        self.url = item[3]
+        if len(item[3]) > urlLength and urlLength > 0:
+            self.url = item[3][0:urlLength - 3] + "..."
+        else:
+            self.url = item[3]
         self.title = item[4]
         self.visitCount = item[5]
         self.typedCount = item[6]

@@ -82,6 +82,8 @@ def main():
                         choices=["csv", "column", "classical", "json"])
     parser.add_argument("-d", "-delimiter", action='store',
                         help="Delimiter used in output formating")
+    parser.add_argument("-ul", "-urlLength", action='store', default=0,
+                        help="Shrink urls display")
     parser.add_argument("-c", "-column", action='store', nargs='+',
                         choices=["vt", "fv", "tr", "u", "tl", "vc", "tc", "lv",
                         "cc"], help="Choose columns to display",
@@ -102,9 +104,10 @@ def main():
         sys.exit(-1)
     elif "cc" in args:
         data = historyParse.parse(args.filename, args.s, args.e, True,
-                                  args.cache)
+                                  args.cache, int(args.ul))
     else:
-        data = historyParse.parse(args.filename, args.s, args.e, False, "")
+        data = historyParse.parse(args.filename, args.s, args.e, False, "",
+                                  int(args.ul))
 
     # Creating a table according to chosen columns
     output = []
