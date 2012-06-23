@@ -6,7 +6,6 @@ Stores the data fetched in the cache.
 Parse the HTTP header if asked.
 """
 
-import os
 import re
 import shutil
 import struct
@@ -39,7 +38,7 @@ class CacheData():
             string = ""
             block = open(self.address.path + self.address.fileSelector, 'rB')
             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-            for dummy in range(self.size):
+            for _ in range(self.size):
                 string += struct.unpack('c', block.read(1))[0]
             block.close()
 
@@ -61,7 +60,8 @@ class CacheData():
             self.headers = {}
             for line in string.split('\0'):
                 stripped = line.split(':')
-                self.headers[stripped[0].lower()] = ':'.join(stripped[1:]).strip()
+                self.headers[stripped[0].lower()] = \
+                    ':'.join(stripped[1:]).strip()
             self.type = CacheData.HTTP_HEADER
 
     def save(self, filename=None):
@@ -93,7 +93,7 @@ class CacheData():
         """
         if self.type == CacheData.HTTP_HEADER:
             if self.headers.has_key('content-type'):
-                return "HTTP Header %s"%self.headers['content-type']
+                return "HTTP Header %s" % self.headers['content-type']
             else:
                 return "HTTP Header"
         else:

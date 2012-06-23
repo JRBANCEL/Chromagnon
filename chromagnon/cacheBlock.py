@@ -7,7 +7,6 @@ See http://www.chromium.org/developers/design-documents/network-stack/disk-cache
 for design details
 """
 
-import os
 import struct
 
 class CacheBlock():
@@ -22,8 +21,7 @@ class CacheBlock():
     INDEX = 0
     BLOCK = 1
 
-    #XXX Filename
-    def __init__(self, filename="../data/Cache"):
+    def __init__(self, filename):
         """
         Parse the header of a cache file
         """
@@ -41,10 +39,10 @@ class CacheBlock():
             self.entryCount = struct.unpack('I', header.read(4))[0]
             self.entryMax = struct.unpack('I', header.read(4))[0]
             self.empty = []
-            for i in range(4):
+            for _ in range(4):
                 self.empty.append(struct.unpack('I', header.read(4))[0])
             self.position = []
-            for i in range(4):
+            for _ in range(4):
                 self.position.append(struct.unpack('I', header.read(4))[0])
         elif magic == CacheBlock.INDEX_MAGIC:
             self.type = CacheBlock.INDEX
@@ -52,7 +50,8 @@ class CacheBlock():
             self.version = struct.unpack('h', header.read(2))[0]
             self.entryCount = struct.unpack('I', header.read(4))[0]
             self.byteCount = struct.unpack('I', header.read(4))[0]
-            self.lastFileCreated = "f_%06x"%struct.unpack('I', header.read(4))[0]
+            self.lastFileCreated = "f_%06x" % \
+                                       struct.unpack('I', header.read(4))[0]
             header.seek(4*2, 1)
             self.tableSize = struct.unpack('I', header.read(4))[0]
         else:

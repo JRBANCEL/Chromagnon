@@ -66,8 +66,8 @@ def parse(path, urls=None):
             addr = struct.unpack('I', index.read(4))[0]
             # Checking if the address is initialized (i.e. used)
             if addr & 0x80000000 == 0:
-                print >> sys.stderr,\
-                      "\033[32m%s\033[31m is not in the cache\033[0m"%url
+                print >> sys.stderr, \
+                      "\033[32m%s\033[31m is not in the cache\033[0m" % url
 
             # Follow the chained list in the bucket
             else:
@@ -85,7 +85,7 @@ def exportToHTML(cache, outpath):
 
     # Checking that the directory exists and is writable
     if not os.path.exists(outpath):
-       os.makedirs(outpath)
+        os.makedirs(outpath)
     outpath = os.path.abspath(outpath) + '/'
 
     index = open(outpath + "index.html", 'w')
@@ -138,7 +138,7 @@ def exportToHTML(cache, outpath):
                         page.write('<a href="%su">%s</a>'%(name ,
                                    entry.keyToStr().split('/')[-1]))
                     except IOError:
-                        page.write("Something wrong happened while unzipping");
+                        page.write("Something wrong happened while unzipping")
                 else:
                     page.write('<a href="%s">%s</a>'%(name ,
                                entry.keyToStr().split('/')[-1]))
@@ -191,11 +191,11 @@ def exportTol2t(cache):
         # TODO get timezone
         timezone = 0
         short = entry.keyToStr()
-        descr = "Hash: 0x%08x"%entry.hash
-        descr += " Usage Counter: %d"%entry.usageCounter
+        descr = "Hash: 0x%08x" % entry.hash
+        descr += " Usage Counter: %d" % entry.usageCounter
         if entry.httpHeader != None:
             if entry.httpHeader.headers.has_key('content-type'):
-               descr += " MIME: %s"%entry.httpHeader.headers['content-type']
+                descr += " MIME: %s" % entry.httpHeader.headers['content-type']
 
         output.append([date,
                        time,

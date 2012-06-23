@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+Frontend script using Chrome History parsing library
+"""
+
 import argparse
 import datetime
 import sys
@@ -22,11 +26,11 @@ class DatetimeAction(argparse.Action):
         try:
             # Try first format
             value = datetime.datetime.strptime(values, "%m/%d/%Y %H:%M:%S")
-        except:
+        except ValueError:
             try:
                 # Try second format
                 value = datetime.datetime.strptime(values, "%m/%d/%Y")
-            except:
+            except ValueError:
                 print >> sys.stderr, "Invalid datetime format !"
                 sys.exit(-1)
         setattr(namespace, self.dest, value)
@@ -97,7 +101,7 @@ def main():
 
     # Getting data
     if "cc" in args.c and not args.cache:
-        print >> sys.stderr,\
+        print >> sys.stderr, \
                  "\033[31mIf you want to use 'cc' column you must specify the"\
                  "cache directory with -cache flag\033[0m"
         parser.print_help()

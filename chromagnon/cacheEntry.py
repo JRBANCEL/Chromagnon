@@ -46,15 +46,15 @@ class CacheEntry():
 
 
         dataSize = []
-        for dummy in range(4):
+        for _ in range(4):
             dataSize.append(struct.unpack('I', block.read(4))[0])
 
         self.data = []
-        for dummy in range(4):
+        for index in range(4):
             addr = struct.unpack('I', block.read(4))[0]
             try:
                 addr = cacheAddress.CacheAddress(addr, address.path)
-                self.data.append(cacheData.CacheData(addr, dataSize[dummy],
+                self.data.append(cacheData.CacheData(addr, dataSize[index],
                                                      True))
             except cacheAddress.CacheAddressError:
                 pass
@@ -73,7 +73,7 @@ class CacheEntry():
         # Reading local key
         if self.keyAddress == 0:
             self.key = ""
-            for dummy in range(self.keyLength):
+            for _ in range(self.keyLength):
                 self.key += struct.unpack('c', block.read(1))[0]
         # Key stored elsewhere
         else:
@@ -95,20 +95,20 @@ class CacheEntry():
             return self.key.data()
 
     def __str__(self):
-        string = "Hash: 0x%08x"%self.hash + '\n'
+        string = "Hash: 0x%08x" % self.hash + '\n'
         if self.next != 0:
-            string += "Next: 0x%08x"%self.next + '\n'
-        string += "Usage Counter: %d"%self.usageCounter + '\n'\
-                  "Reuse Counter: %d"%self.reuseCounter + '\n'\
-                  "Creation Time: %s"%self.creationTime + '\n'
+            string += "Next: 0x%08x" % self.next + '\n'
+        string += "Usage Counter: %d" % self.usageCounter + '\n'\
+                  "Reuse Counter: %d" % self.reuseCounter + '\n'\
+                  "Creation Time: %s" % self.creationTime + '\n'
         if self.keyAddress != 0:
-            string += "Key Address: 0x%08x"%self.keyAddress + '\n'
-        string += "Key: %s"%self.key + '\n'
+            string += "Key Address: 0x%08x" % self.keyAddress + '\n'
+        string += "Key: %s" % self.key + '\n'
         if self.flags != 0:
-            string += "Flags: 0x%08x"%self.flags + '\n'
-        string += "State: %s"%CacheEntry.STATE[self.state]
+            string += "Flags: 0x%08x" % self.flags + '\n'
+        string += "State: %s" % CacheEntry.STATE[self.state]
         for data in self.data:
-             string += "\nData (%d bytes) at 0x%08x : %s"%(data.size,
-                                                           data.address.addr,
-                                                           data)
+            string += "\nData (%d bytes) at 0x%08x : %s" % (data.size,
+                                                            data.address.addr,
+                                                            data)
         return string

@@ -1,8 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+Frontend script using Chrome Visited Links parsing library
+"""
+
 import argparse
-import os
 import textwrap
 
 import chromagnon.columnOutput
