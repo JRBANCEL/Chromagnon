@@ -5,8 +5,8 @@ import argparse
 import os
 import textwrap
 
-import columnOutput
-import visitedLinks
+import chromagnon.columnOutput
+import chromagnon.visitedLinks
 
 def main():
     parser = argparse.ArgumentParser(
@@ -28,10 +28,10 @@ list is in the hash table.
                         help="Urls to check")
     args = parser.parse_args()
 
-    result = visitedLinks.isVisited(args.__getattribute__("visited_links_file"),
-                                    args.urls)
+    result = chromagnon.visitedLinks.isVisited(args.__getattribute__(
+                "visited_links_file"), args.urls)
 
-    columnOutput.columnOutput(result)
+    chromagnon.columnOutput.columnOutput(result)
 
 if __name__ == "__main__":
     main()

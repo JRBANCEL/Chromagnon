@@ -5,7 +5,7 @@ import argparse
 import os
 import textwrap
 
-import cacheParse
+import chromagnon.cacheParse
 
 def main():
     parser = argparse.ArgumentParser(
@@ -57,18 +57,19 @@ def main():
     args = parser.parse_args()
 
     # Getting data
-    cache = cacheParse.parse(args.__getattribute__("Cache Directory"), args.u)
+    cache = chromagnon.cacheParse.parse(
+            args.__getattribute__("Cache Directory"), args.u)
 
     # Export or display
     if args.o == None:
         if args.l2t:
-            cacheParse.exportTol2t(cache)
+            chromagnon.cacheParse.exportTol2t(cache)
         else:
             for entry in cache:
                 print entry
                 print "-"*80
     else:
-        cacheParse.exportToHTML(cache, args.o)
+        chromagnon.cacheParse.exportToHTML(cache, args.o)
 
 if __name__ == "__main__":
     main()

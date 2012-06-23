@@ -6,11 +6,11 @@ import datetime
 import sys
 import textwrap
 
-import classicalOutput
-import columnOutput
-import csvOutput
-import jsonOutput
-import historyParse
+import chromagnon.classicalOutput
+import chromagnon.columnOutput
+import chromagnon.csvOutput
+import chromagnon.jsonOutput
+import chromagnon.historyParse
 
 class DatetimeAction(argparse.Action):
     """
@@ -39,8 +39,8 @@ def main():
 
 
     parser = argparse.ArgumentParser(
-             formatter_class=argparse.RawDescriptionHelpFormatter,
-             description=textwrap.dedent('''
+                formatter_class=argparse.RawDescriptionHelpFormatter,
+                description=textwrap.dedent('''
 \033[32mChromagnon Chrome History Parser\033[0m
 
 \033[4mInput File\033[0m
@@ -103,11 +103,11 @@ def main():
         parser.print_help()
         sys.exit(-1)
     elif "cc" in args:
-        data = historyParse.parse(args.filename, args.s, args.e, True,
-                                  args.cache, int(args.ul))
+        data = chromagnon.historyParse.parse(args.filename, args.s, args.e,
+                                             True, args.cache, int(args.ul))
     else:
-        data = historyParse.parse(args.filename, args.s, args.e, False, "",
-                                  int(args.ul))
+        data = chromagnon.historyParse.parse(args.filename, args.s, args.e,
+                                             False, "", int(args.ul))
 
     # Creating a table according to chosen columns
     output = []
@@ -119,11 +119,11 @@ def main():
 
     # Printing table
     if args.d == None:
-        sys.modules[args.f + "Output"].__getattribute__(args.f + "Output")\
-            (output)
+        sys.modules["chromagnon." + args.f + "Output"].__getattribute__(
+            args.f + "Output")(output)
     else:
-        sys.modules[args.f + "Output"].__getattribute__(args.f + "Output")\
-            (output, separator=args.d)
+        sys.modules["chromagnon." + args.f + "Output"].__getattribute__(
+            args.f + "Output")(output, separator=args.d)
 
 if __name__ == "__main__":
     main()

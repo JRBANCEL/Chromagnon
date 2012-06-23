@@ -9,6 +9,8 @@ def columnOutput(queryResult, separator=' '):
     """
     Display the data in columns
     """
+    if len(queryResult) == 0:
+        return
 
     # Finding width of columns
     size = [max([len(str(line[i])) for line in queryResult])
