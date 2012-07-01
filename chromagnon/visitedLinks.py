@@ -79,7 +79,7 @@ def isVisited(path, urls):
         # The hash table uses open addressing
         f.seek(key*8 + 24, 0)
         while True:
-            finger = struct.unpack('L', f.read(8))[0]
+            finger = struct.unpack('q', f.read(8))[0]
             if finger == 0:
                 output.append((url, False))
                 break
