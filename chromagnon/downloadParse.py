@@ -73,6 +73,11 @@ class DownloadEntry(object):
                   'tb': "totalBytes",
                   'pt': "percentReceived",
                   's': "state"}
+    STATE_STR = ["In Progress",
+                 "Complete",
+                 "Cancelled",
+                 "Removing",
+                 "Interrupted"]
 
     def __init__(self, item, urlLength):
         """Parse raw input"""
@@ -86,7 +91,7 @@ class DownloadEntry(object):
                          item[3])
         self.receivedBytes = item[4]
         self.totalBytes = item[5]
-        self.state = item[6]
+        self.state = DownloadEntry.STATE_STR[item[6]]
         if int(item[5]) == 0:
             self.percentReceived = "0%"
         else:
