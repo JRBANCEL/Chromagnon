@@ -106,9 +106,7 @@ class CacheData():
         """Returns a string representing the data"""
         block = open(self.address.path + self.address.fileSelector, 'rB')
         block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-        data = ""
-        for dummy in range(self.size):
-            data += struct.unpack('c', block.read(1))[0]
+        data = block.read(self.size).decode('utf-8')
         block.close()
         return data
 

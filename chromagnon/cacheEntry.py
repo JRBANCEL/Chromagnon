@@ -97,9 +97,7 @@ class CacheEntry():
 
         # Reading local key
         if self.keyAddress == 0:
-            self.key = ""
-            for _ in range(self.keyLength):
-                self.key += struct.unpack('c', block.read(1))[0]
+            self.key = block.read(self.keyLength).decode('ascii')
         # Key stored elsewhere
         else:
             addr = cacheAddress.CacheAddress(self.keyAddress, address.path)
