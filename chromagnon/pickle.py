@@ -27,53 +27,51 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-Reverse engineered from chrome/browser/sessions/*
+This module is a basic and incomplete implementation of the pickle module
+used in Chrome.
 """
 
 import os
 import struct
 
-import types
+import chromagnon.types as types
 
-SNSS_MAGIC = 0x53534E53
+class Pickle():
 
-def parse(path):
-    """
-    Parses SNSS files and returns a list of SNSS command objects
-    """
-    output = []
+    def __init__(self, data):
+        """
+        Reads the header of the pickle object and extract payload from it.
+        data is a StringIO or a file descriptor
+        """
+        self.data = data
+        # len function seems to exists for StringIO
+        self.data.seek(0, os.SEEK_END)
+        self.dataSize = self.data.tell()
+        self.data.seek(0, os.SEEK_SET)
 
-    f = open(path, 'rB')
-    f.seek(0, os.SEEK_END)
-    end = f.tell()
-    f.seek(0, os.SEEK_SET)
-    magic = struct.unpack(types.int32, f.read(4))[0]
-    if magic != SNSS_MAGIC:
-        raise Exception("Invalid file header!")
-    version = struct.unpack(types.int32, f.read(4))[0]
+        self.payloadSize = struct.unpack(types.uint32, self.data.read(4))[0]
+        self.payloadStart = self.dataSize - self.payloadSize
+#        print "dataSize: %d, payloadSize: %d, payloadStart: %d" % \
+#              (self.dataSize, self.payloadSize, self.payloadStart)
 
-    while (end - f.tell()) > 0:
-        # commandSize is a uint16
-        commandSize = struct.unpack(types.uint16, f.read(2))[0]
-        if commandSize == 0:
-            raise Exception("Corrupted File!")
-        # idType is a uint8
-        idType = struct.unpack(types.uint8, f.read(1))[0]
+    def readInt(self):
+        """Reading Int on 32bits"""
+        return struct.unpack(types.uint32, self.data.read(4))[0]
 
-        # Size of idType is included in commandSize
-        content = f.read(commandSize - 1)
-        output.append(SNSSCommand(idType, content))
+    def readString(self):
+        """Reading String on 8bits"""
+        # Reading String length
+        length = self.readInt()
+        # XXX Some Length are two big...
+        if length > self.dataSize - self.data.tell():
+            return None
+        return self.data.read(length).decode('utf-8', 'ignore')
 
-    f.close()
-    return output
-
-class SNSSCommand():
-    """
-    A SNSS command :
-        - An Id to identify the content of the payload
-        - The payload
-    """
-
-    def __init__(self, idType, content):
-        self.idType = idType
-        self.content = content
+    def readString16(self):
+        """Reading String on 16bits"""
+        # Reading String length
+        length = self.readInt()
+        # XXX Some Length are two big...
+        if length * 2 > self.dataSize - self.data.tell():
+            return None
+        return self.data.read(length*2).decode('utf-8', 'ignore')

@@ -26,54 +26,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""
-Reverse engineered from chrome/browser/sessions/*
-"""
+import sys
 
-import os
-import struct
+import chromagnon.SNSSParse
+import chromagnon.sessionParse
 
-import types
+def main():
+    snss = chromagnon.SNSSParse.parse(sys.argv[1])
+    session = chromagnon.sessionParse.parse(snss)
 
-SNSS_MAGIC = 0x53534E53
-
-def parse(path):
-    """
-    Parses SNSS files and returns a list of SNSS command objects
-    """
-    output = []
-
-    f = open(path, 'rB')
-    f.seek(0, os.SEEK_END)
-    end = f.tell()
-    f.seek(0, os.SEEK_SET)
-    magic = struct.unpack(types.int32, f.read(4))[0]
-    if magic != SNSS_MAGIC:
-        raise Exception("Invalid file header!")
-    version = struct.unpack(types.int32, f.read(4))[0]
-
-    while (end - f.tell()) > 0:
-        # commandSize is a uint16
-        commandSize = struct.unpack(types.uint16, f.read(2))[0]
-        if commandSize == 0:
-            raise Exception("Corrupted File!")
-        # idType is a uint8
-        idType = struct.unpack(types.uint8, f.read(1))[0]
-
-        # Size of idType is included in commandSize
-        content = f.read(commandSize - 1)
-        output.append(SNSSCommand(idType, content))
-
-    f.close()
-    return output
-
-class SNSSCommand():
-    """
-    A SNSS command :
-        - An Id to identify the content of the payload
-        - The payload
-    """
-
-    def __init__(self, idType, content):
-        self.idType = idType
-        self.content = content
+if __name__ == "__main__":
+    main()
