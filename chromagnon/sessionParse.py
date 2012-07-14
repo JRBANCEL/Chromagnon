@@ -78,7 +78,10 @@ class CommandSetTabWindow():
         # Strange alignment : two uint8 takes 8Bytes...
         self.windowId = struct.unpack(types.uint32, content.read(4))[0]
         self.tabId = struct.unpack(types.uint32, content.read(4))[0]
-        print "SetTabWindow - Window: %d, Tab: %d" % (self.windowId, self.tabId)
+
+    def __str__(self):
+        return "SetTabWindow - Window: %d, Tab: %d" % \
+               (self.windowId, self.tabId)
 
 class CommandSetTabIndexInWindow():
     """
@@ -90,9 +93,12 @@ class CommandSetTabIndexInWindow():
         """
         # Content is Tab ID on 8bits and Index on 32bits
         # But due to alignment Tab ID is on 32bits
-        tabId = struct.unpack(types.int32, content.read(4))[0]
-        index = struct.unpack(types.int32, content.read(4))[0]
-        print "SetTabIndexInWindow - Tab: %d, Index: %d" % (tabId, index)
+        self.tabId = struct.unpack(types.int32, content.read(4))[0]
+        self.index = struct.unpack(types.int32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetTabIndexInWindow - Tab: %d, Index: %d" % \
+               (self.tabId, self.index)
 
 class CommandTabClosed():
     """
@@ -100,12 +106,15 @@ class CommandTabClosed():
     """
     def __init__(self, content):
         # Content is Tab ID on 8bits and Close Time on 64bits
-        tabId = struct.unpack(types.uint32, content.read(4))[0]
-        closeTime = struct.unpack(types.int64, content.read(8))[0]
+        self.tabId = struct.unpack(types.uint32, content.read(4))[0]
+        self.closeTime = struct.unpack(types.int64, content.read(8))[0]
         # XXX Investigate on time format
 #        closeTime = datetime.datetime(1601, 1, 1) + \
 #                    datetime.timedelta(microseconds=closeTime/1000)
-        print "TabClosed - Tab: %d, Close Time: %s" % (tabId, closeTime)
+
+    def __str__(self):
+        return "TabClosed - Tab: %d, Close Time: %s" % \
+               (self.tabId, self.closeTime)
 
 class CommandWindowClosed():
     """
@@ -113,11 +122,14 @@ class CommandWindowClosed():
     """
     def __init__(self, content):
         # Content is Window ID on 8bits and Close Time on 64bits
-        windowId = struct.unpack(types.uint8, content.read(1))[0]
-        closeTime = struct.unpack(types.int64, content.read(8))[0]
+        self.windowId = struct.unpack(types.uint8, content.read(1))[0]
+        self.closeTime = struct.unpack(types.int64, content.read(8))[0]
 #        closeTime = datetime.datetime(1601, 1, 1) + \
 #                    datetime.timedelta(microseconds=closeTime)
-        print "WindowClosed - Window: %d, CloseTime: %s" % (windowId, closeTime)
+
+    def __str__(self):
+        return "WindowClosed - Window: %d, CloseTime: %s" % \
+               (self.windowId, self.closeTime)
 
 class CommandTabNavigationPathPrunedFromBack():
     """
@@ -125,9 +137,13 @@ class CommandTabNavigationPathPrunedFromBack():
     """
     def __init__(self, content):
         # Content is Tab ID on 8bits and Index on 32bits
-        tabId = struct.unpack(types.uint8, content.read(1))[0]
-        index = 0#struct.unpack(types.int32, content.read(4))[0]
-        print "TabNavigationPathPrunedFromBack - Tab: %d, Index: %d" % (tabId, index)
+        self.tabId = struct.unpack(types.uint8, content.read(1))[0]
+        # XXX Strange results...
+        self.index = 0#struct.unpack(types.int32, content.read(4))[0]
+
+    def __str__(self):
+        return "TabNavigationPathPrunedFromBack - Tab: %d, Index: %d" % \
+               (self.tabId, self.index)
 
 class CommandUpdateTabNavigation():
     """
@@ -135,12 +151,18 @@ class CommandUpdateTabNavigation():
     """
     def __init__(self, content):
         content = pickle.Pickle(content)
-        print "Tab:", content.readInt()
-        print "Index:", content.readInt()
-        print "Url:", content.readString()
+        self.tabId = content.readInt()
+        self.index = content.readInt()
+        self.url = content.readString()
         #print "Title:", content.readString16()
         #print "State:", content.readString()
         #print "Transition:", (0xFF & content.readInt())
+        # Content is Window ID on 8bits and Tab ID on 8bits
+        # Strange alignment : two uint8 takes 8Bytes...
+
+    def __str__(self):
+        return "UpdateTabNavigation - Tab: %d, Index: %d, Url: %s" % \
+               (self.tabId, self.index, self.url)
 
 class CommandSetSelectedNavigationIndex():
     """
@@ -149,9 +171,12 @@ class CommandSetSelectedNavigationIndex():
     def __init__(self, content):
         # Content is Tab ID on 8bits and Index on 32bits
         # But due to alignment Tab ID is on 32bits
-        tabId = struct.unpack(types.uint32, content.read(4))[0]
-        index = struct.unpack(types.uint32, content.read(4))[0]
-        print "SetSelectedNavigationIndex - Tab: %d, Index: %d" % (tabId, index)
+        self.tabId = struct.unpack(types.uint32, content.read(4))[0]
+        self.index = struct.unpack(types.uint32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetSelectedNavigationIndex - Tab: %d, Index: %d" % \
+               (self.tabId, self.index)
 
 class CommandSetSelectedTabInIndex():
     """
@@ -160,9 +185,12 @@ class CommandSetSelectedTabInIndex():
     def __init__(self, content):
         # Content is Window ID on 8bits and Index on 32bits
         # But due to alignment Window ID is on 32bits
-        windowId = struct.unpack(types.uint32, content.read(4))[0]
-        index = struct.unpack(types.uint32, content.read(4))[0]
-        print "SetSelectedTabInIndex - Window: %d, Index: %d" % (windowId, index)
+        self.windowId = struct.unpack(types.uint32, content.read(4))[0]
+        self.index = struct.unpack(types.uint32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetSelectedTabInIndex - Window: %d, Index: %d" % \
+               (self.windowId, self.index)
 
 class CommandSetWindowType():
     """
@@ -171,9 +199,12 @@ class CommandSetWindowType():
     def __init__(self, content):
         # Content is Window ID on 8bits and Window Type on 32bits
         # But due to alignment Window ID is on 32bits
-        windowId = struct.unpack(types.uint32, content.read(4))[0]
-        windowType = struct.unpack(types.uint32, content.read(4))[0]
-        print "SetWindowType - Window: %d, Type: %d" % (windowId, windowType)
+        self.windowId = struct.unpack(types.uint32, content.read(4))[0]
+        self.windowType = struct.unpack(types.uint32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetWindowType - Window: %d, Type: %d" % \
+               (self.windowId, self.windowType)
 
 class CommandTabNavigationPathPrunedFromFront():
     """
@@ -182,9 +213,12 @@ class CommandTabNavigationPathPrunedFromFront():
     def __init__(self, content):
         # Content is Tab ID on 8bits and Count on 32bits
         # But due to alignment Tab ID is on 32bits
-        tabId = struct.unpack(types.uint32, content.read(4))[0]
-        count = struct.unpack(types.uint32, content.read(4))[0]
-        print "TabNavigationPathPrunedFromFront - Tab: %d, Count: %d" % (tabId, count)
+        self.tabId = struct.unpack(types.uint32, content.read(4))[0]
+        self.count = struct.unpack(types.uint32, content.read(4))[0]
+
+    def __str__(self):
+        return "TabNavigationPathPrunedFromFront - Tab: %d, Count: %d" % \
+               (self.tabId, self.count)
 
 class CommandSetPinnedState():
     """
@@ -193,17 +227,25 @@ class CommandSetPinnedState():
     def __init__(self, content):
         # Content is Tab ID on 8bits and Pinned State on 8bits
         # Strange alignment : two uint8 takes 8bits...
-        tabId = struct.unpack(types.uint32, content.read(4))[0]
-        pinned = struct.unpack(types.uint32, content.read(4))[0]
-        print "SetPinnedState - Tab: %d, Pinned: %d" % (tabId, pinned)
+        self.tabId = struct.unpack(types.uint32, content.read(4))[0]
+        self.pinned = struct.unpack(types.uint32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetPinnedState - Tab: %d, Pinned: %d" % \
+               (self.tabId, self.pinned)
 
 class CommandSetExtensionAppID():
     """
     TODO
     """
     def __init__(self, content):
-        content = pickle.Pickle(content)
-        print "Tab: %d, Extension: %d" % (content.readInt(), content.readString())
+        self.content = pickle.Pickle(content)
+        self.tabId = content.readInt()
+        self.appId = content.readString()
+
+    def __str__(self):
+        return "SetExtensionAppID - Tab: %d, " % self.tabId +\
+               "Extension: %d" % self.appId
 
 class CommandSetWindowBounds3():
     """
@@ -215,11 +257,14 @@ class CommandSetWindowBounds3():
         #   x, y, w, h on 32bits
         #   state on 32bits
         # Alignment : Window Id is in the first 32bits
-        windowId = struct.unpack(types.uint32, content.read(4))[0]
-        x = struct.unpack(types.int32, content.read(4))[0]
-        y = struct.unpack(types.int32, content.read(4))[0]
-        w = struct.unpack(types.int32, content.read(4))[0]
-        h = struct.unpack(types.int32, content.read(4))[0]
-        state = struct.unpack(types.int32, content.read(4))[0]
-        print "SetWindowBounds3 - Window: %d, x: %d, y: %d, w: %d, h: %d, state: %d" % \
-              (windowId, x, y, w, h, state)
+        self.windowId = struct.unpack(types.uint32, content.read(4))[0]
+        self.x = struct.unpack(types.int32, content.read(4))[0]
+        self.y = struct.unpack(types.int32, content.read(4))[0]
+        self.w = struct.unpack(types.int32, content.read(4))[0]
+        self.h = struct.unpack(types.int32, content.read(4))[0]
+        self.state = struct.unpack(types.int32, content.read(4))[0]
+
+    def __str__(self):
+        return "SetWindowBounds3 - Window: %d, x: %d, y: %d, w: %d, h: %d, " % \
+               (self.windowId, self.x, self.y, self.w, self.h) + "State: %d" % \
+               self.state

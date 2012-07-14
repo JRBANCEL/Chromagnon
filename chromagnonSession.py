@@ -33,7 +33,9 @@ import chromagnon.sessionParse
 
 def main():
     snss = chromagnon.SNSSParse.parse(sys.argv[1])
-    session = chromagnon.sessionParse.parse(snss)
+    sessionCommand = chromagnon.sessionParse.parse(snss)
+    for command in sessionCommand:
+        print command
 
 if __name__ == "__main__":
     main()
