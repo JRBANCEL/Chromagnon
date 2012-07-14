@@ -60,15 +60,15 @@ def parse(commandList):
 
     for command in commandList:
         if TYPE_DICT.has_key(str(command.idType)):
-            print command.idType, "----------------------------------------------------------------"
             content = StringIO.StringIO(command.content)
-            commandClass = sys.modules[__name__].__dict__.get(TYPE_DICT[str(command.idType)])
+            commandClass = sys.modules[__name__].__dict__.get(\
+                           TYPE_DICT[str(command.idType)])
             output.append(commandClass(content))
     return output
 
 class CommandSetTabWindow():
     """
-    TODO
+    Set a Tab in a Window
     """
     def __init__(self, content):
         """
@@ -82,7 +82,7 @@ class CommandSetTabWindow():
 
 class CommandSetTabIndexInWindow():
     """
-    TODO
+    Set the Index of a Tab
     """
     def __init__(self, content):
         """
@@ -96,7 +96,7 @@ class CommandSetTabIndexInWindow():
 
 class CommandTabClosed():
     """
-    TODO
+    Store closure of a Tab with Timestamp
     """
     def __init__(self, content):
         # Content is Tab ID on 8bits and Close Time on 64bits
@@ -109,7 +109,7 @@ class CommandTabClosed():
 
 class CommandWindowClosed():
     """
-    TODO
+    Store closure of a Window with Timestamp
     """
     def __init__(self, content):
         # Content is Window ID on 8bits and Close Time on 64bits
@@ -131,7 +131,7 @@ class CommandTabNavigationPathPrunedFromBack():
 
 class CommandUpdateTabNavigation():
     """
-    TODO
+    Update Tab informations
     """
     def __init__(self, content):
         content = pickle.Pickle(content)
@@ -155,7 +155,7 @@ class CommandSetSelectedNavigationIndex():
 
 class CommandSetSelectedTabInIndex():
     """
-    TODO
+    Set selected Tab in a Window
     """
     def __init__(self, content):
         # Content is Window ID on 8bits and Index on 32bits
@@ -166,7 +166,7 @@ class CommandSetSelectedTabInIndex():
 
 class CommandSetWindowType():
     """
-    TODO
+    Set Window Type
     """
     def __init__(self, content):
         # Content is Window ID on 8bits and Window Type on 32bits
@@ -188,7 +188,7 @@ class CommandTabNavigationPathPrunedFromFront():
 
 class CommandSetPinnedState():
     """
-    TODO
+    Set Pinned State
     """
     def __init__(self, content):
         # Content is Tab ID on 8bits and Pinned State on 8bits
@@ -207,7 +207,7 @@ class CommandSetExtensionAppID():
 
 class CommandSetWindowBounds3():
     """
-    TODO
+    Set Window size, position and state
     """
     def __init__(self, content):
         # Content is
