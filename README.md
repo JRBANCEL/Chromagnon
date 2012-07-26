@@ -21,6 +21,7 @@ Following cases have been tested with success
 * Chromagnon on FreeBSD 9.0 amd64 parsing file from Windows 7 64bits (Chrome 20)
 * Chromagnon on FreeBSD 9.0 amd64 parsing file from Linux Mint 12 amd64 (Chrome 18)
 * Chromagnon on FreeBSD 9.0 amd64 parsing file from FreeBSD 9.0 amd64 (Chrome 15)
+* Chromagnon on Arch Linux x86_64 parsing file from Arch Linux x86_64 (Chrome 20)
 
 Help is welcome to test Chromagnon on other plateforms.
 
