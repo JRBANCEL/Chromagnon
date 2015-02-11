@@ -65,7 +65,7 @@ class CacheEntry():
         self.state = struct.unpack('I', block.read(4))[0]
         self.creationTime = datetime.datetime(1601, 1, 1) + \
                             datetime.timedelta(microseconds=\
-                                struct.unpack('L', block.read(8))[0])
+                                struct.unpack('Q', block.read(8))[0])
         self.keyLength = struct.unpack('I', block.read(4))[0]
         self.keyAddress = struct.unpack('I', block.read(4))[0]
 
