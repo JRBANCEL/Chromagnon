@@ -43,7 +43,7 @@ def parse(path):
     """
     output = []
 
-    f = open(path, 'rB')
+    f = open(path, 'rb')
     f.seek(0, os.SEEK_END)
     end = f.tell()
     f.seek(0, os.SEEK_SET)

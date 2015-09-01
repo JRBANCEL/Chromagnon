@@ -61,7 +61,7 @@ def parse(path, urls=None):
     if cacheBlock.type != CacheBlock.INDEX:
         raise Exception("Invalid Index File")
 
-    index = open(path + "index", 'rB')
+    index = open(path + "index", 'rb')
 
     # Skipping Header
     index.seek(92*4)

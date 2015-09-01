@@ -50,7 +50,7 @@ class CacheBlock():
         """
         Parse the header of a cache file
         """
-        header = open(filename, 'rB')
+        header = open(filename, 'rb')
 
         # Read Magic Number
         magic = struct.unpack('I', header.read(4))[0]

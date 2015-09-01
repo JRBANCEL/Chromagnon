@@ -51,7 +51,7 @@ class CacheEntry():
         Parse a Chrome Cache Entry at the given address
         """
         self.httpHeader = None
-        block = open(address.path + address.fileSelector, 'rB')
+        block = open(address.path + address.fileSelector, 'rb')
 
         # Going to the right entry
         block.seek(8192 + address.blockNumber*address.entrySize)

@@ -61,7 +61,7 @@ class CacheData():
            self.address.blockType != cacheAddress.CacheAddress.SEPARATE_FILE:
             # Getting raw data
             string = ""
-            block = open(self.address.path + self.address.fileSelector, 'rB')
+            block = open(self.address.path + self.address.fileSelector, 'rb')
             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
             for _ in range(self.size):
                 string += struct.unpack('c', block.read(1))[0]
@@ -95,8 +95,8 @@ class CacheData():
             shutil.copy(self.address.path + self.address.fileSelector,
                         filename)
         else:
-            output = open(filename, 'wB')
-            block = open(self.address.path + self.address.fileSelector, 'rB')
+            output = open(filename, 'wb')
+            block = open(self.address.path + self.address.fileSelector, 'rb')
             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
             output.write(block.read(self.size))
             block.close()
@@ -104,7 +104,7 @@ class CacheData():
 
     def data(self):
         """Returns a string representing the data"""
-        block = open(self.address.path + self.address.fileSelector, 'rB')
+        block = open(self.address.path + self.address.fileSelector, 'rb')
         block.seek(8192 + self.address.blockNumber*self.address.entrySize)
         data = ""
         for dummy in range(self.size):
