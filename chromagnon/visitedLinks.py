@@ -46,7 +46,7 @@ def isVisited(path, urls):
     """
     output = []
 
-    f = open(path, 'rB')
+    f = open(path, 'rb')
 
     # Checking file type
     magic = struct.unpack('I', f.read(4))[0]
