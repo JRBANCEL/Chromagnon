@@ -119,10 +119,12 @@ def exportToHTML(cache, outpath):
     for entry in cache:
         # Adding a link in the index
         if entry.keyLength > 100:
-            name = entry.keyToStr()[:100] + "..."
+            entry_name = entry.keyToStr()[:100] + "..."
         else:
-            name = entry.keyToStr()
-        index.write('<LI><a href="%08x">%s</a></LI>'%(entry.hash, name))
+            entry_name = entry.keyToStr()
+        index.write('<LI><a href="%08x">%s</a></LI>'%(entry.hash, entry_name))
+        # We handle the special case where entry_name ends with a slash
+        page_basename = entry_name.split('/')[-2] if entry_name.endswith('/') else entry_name.split('/')[-1]
 
         # Creating the entry page
         page = open(outpath + "%08x"%entry.hash, 'w')
@@ -147,21 +149,20 @@ def exportToHTML(cache, outpath):
         for i in range(len(entry.data)):
             if entry.data[i].type == CacheData.UNKNOWN:
                 # Extracting data into a file
-                name = outpath + hex(entry.hash) + "_" + str(i)
-                entry.data[i].save(name)
+                name = hex(entry.hash) + "_" + str(i)
+                entry.data[i].save(outpath + name)
 
                 if entry.httpHeader != None and \
                    entry.httpHeader.headers.has_key('content-encoding') and\
                    entry.httpHeader.headers['content-encoding'] == "gzip":
                     # XXX Highly inefficient !!!!!
                     try:
-                        input = gzip.open(name, 'rb')
-                        output = open(name + "u", 'w')
+                        input = gzip.open(outpath + name, 'rb')
+                        output = open(outpath + name + "u", 'w')
                         output.write(input.read())
                         input.close()
                         output.close()
-                        page.write('<a href="%su">%s</a>'%(name ,
-                                   entry.keyToStr().split('/')[-1]))
+                        page.write('<a href="%su">%s</a>'%(name, page_basename))
                     except IOError:
                         page.write("Something wrong happened while unzipping")
                 else:
