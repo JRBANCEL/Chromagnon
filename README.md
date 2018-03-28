@@ -14,7 +14,7 @@ Chromagnon is a set of small tools dedicated to _Chrome_/_Chromium_ forensic.
 * The code is alignment dependant. If Chrome was compiled with custom alignment flags, it probably won't work.
 
 ## Work In Progress
-I am working on reverse engineering SNSS file format : [see this page](https://github.com/JRBANCEL/Chromagnon/wiki/Reverse-Engineering-SNSS-Format) for details.
+I am working on reverse engineering SSNS file format : [see this page](https://github.com/JRBANCEL/Chromagnon/wiki/Reverse-Engineering-SSNS-Format) for details.
 
 ## Tests
 Following cases have been tested with success
