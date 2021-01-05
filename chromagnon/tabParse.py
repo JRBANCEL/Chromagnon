@@ -140,4 +140,4 @@ class CommandSetExtensionAppID():
 
     def __str__(self):
         return "SetExtensionAppID - Tab: %d, " % self.tabId +\
-               "Extension: %d" % self.appId
+               "Extension: %s" % self.appId
